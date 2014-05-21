@@ -43,7 +43,7 @@ I currently do not have correct UTF codes for mirror, tiny or flip
 =cut
 
 package App::Basis::ConvertText2::UtfTransform;
-$App::Basis::ConvertText2::UtfTransform::VERSION = '0.1.0';
+$App::Basis::ConvertText2::UtfTransform::VERSION = '0.1.1';
 use 5.014;
 use warnings;
 use strict;

@@ -6,6 +6,7 @@ META.yml
 Makefile.PL
 README
 README.md
+bin/utftx
 cpanfile
 dist.ini
 lib/App/Basis/ConvertText2/UtfTransform.pm

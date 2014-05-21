@@ -3,7 +3,7 @@
 use strict;
 use warnings;
 
-use 5.014;
+use 5.014000;
 
 use ExtUtils::MakeMaker 6.30;
 
@@ -17,11 +17,14 @@ my %WriteMakefileArgs = (
     "ExtUtils::MakeMaker" => "6.30"
   },
   "DISTNAME" => "App-Basis-ConvertText2-UtfTransform",
-  "EXE_FILES" => [],
+  "EXE_FILES" => [
+    "bin/utftx"
+  ],
   "LICENSE" => "perl",
   "NAME" => "App::Basis::ConvertText2::UtfTransform",
   "PREREQ_PM" => {
     "Acme::LeetSpeak" => 0,
+    "App::Basis" => 0,
     "Exporter" => 0,
     "strict" => 0,
     "vars" => 0,
@@ -30,7 +33,7 @@ my %WriteMakefileArgs = (
   "TEST_REQUIRES" => {
     "Test::More" => 0
   },
-  "VERSION" => "0.1.0",
+  "VERSION" => "0.1.1",
   "test" => {
     "TESTS" => "t/*.t"
   }
@@ -39,6 +42,7 @@ my %WriteMakefileArgs = (
 
 my %FallbackPrereqs = (
   "Acme::LeetSpeak" => 0,
+  "App::Basis" => 0,
   "Exporter" => 0,
   "Test::More" => 0,
   "strict" => 0,
