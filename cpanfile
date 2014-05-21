@@ -1,6 +1,7 @@
 requires "Acme::LeetSpeak" => "0";
 requires "App::Basis" => "0";
 requires "Exporter" => "0";
+requires "Text::Emoticon" => "0";
 requires "perl" => "v5.14.0";
 requires "strict" => "0";
 requires "vars" => "0";

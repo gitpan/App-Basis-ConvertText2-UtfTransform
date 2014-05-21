@@ -13,10 +13,14 @@ App::Basis::ConvertText2::UtfTransform
 
     my $string = "<b>bold text</b> 
     <i>italic text</i>
-    <m>mirrored and reversed text</m>
-    <f>flipped upside down text</f>
-    <t>tiny text</t>
+    <f>flipped upside down text and reversed</f>
     <l>Some Leet speak</l>
+    <o>text in bubbles</o>
+    <s>script text</s>
+    :beer:
+    :)
+    ;)
+
     " ;
 
     say utf_transform( $string) ;
@@ -29,25 +33,59 @@ bold/italic font effects.
 However we can simulate this with some clever transformations of plain ascii text
 into UTF8 codes which are a different font and so effectively create the same effect.
 
-We have transformations for mirror (reverses the string too, flip (upside down),
-tiny, bold, italic and leet.
+We have transformations for flip (reverses the string and flips upside down,
+bold, italic, bubbles and leet.
 
 We can transform A-Z a-z 0-9 and ? ! ,
 
+=head1 Smilies
+
+I have only implemented a small set of smilies, ones that I am likely to use
+
+    <3            heart
+    :heart:       heart
+    :)            smile
+    :D            grin
+    8-)           cool
+    :P            pull tongue
+    :(            cry
+    :(            sad
+    ;)            wink
+    :halo:        halo
+    :devil:       devil horns
+    :horns:       devil horns
+    (c)           copyright
+    (r)           registered
+    (tm)          trademark
+    :email:       email
+    :yes:         tick
+    :no:          cross
+    :beer:        beer
+    :wine:        wine
+    :wine_glass:  wine
+    :cake:        cake
+    :star:        star
+    :ok:, :yes:, :thumbsup:    thumbsup
+    :bad:, :no:, :thumbsdown:  thumbsup
+    :ghost:       ghost
+    :skull:       skull
+    :hourglass:   hourglass
+    :time:        watch face
+    :sleep:
+
+
+
 See Also L<http://txtn.us/>
-
-=head1 Notes
-
-I currently do not have correct UTF codes for mirror, tiny or flip
 
 =cut
 
 package App::Basis::ConvertText2::UtfTransform;
-$App::Basis::ConvertText2::UtfTransform::VERSION = '0.1.1';
+$App::Basis::ConvertText2::UtfTransform::VERSION = '0.2.0';
 use 5.014;
 use warnings;
 use strict;
 use Acme::LeetSpeak;
+use Text::Emoticon;
 use Exporter;
 use vars qw( @EXPORT @ISA);
 
@@ -67,126 +105,32 @@ use vars qw( @EXPORT @ISA);
 
 # ----------------------------------------------------------------------------
 
-my %mirror = (
-    "A" => "A",
-    "B" => "\x{1660}",
-    "C" => "Æ†",
-    "D" => "á—¡",
-    "E" => "ÆŽ",
-    "F" => "á–·",
-    "G" => "áŽ®",     # need a good G
-    "H" => "H",
-    "I" => "I",
-    "J" => "á‚±",
-    "K" => "á´",
-    "L" => "â…ƒ",
-    "M" => "M",
-    "N" => "Ð˜",
-    "O" => "O",
-    "P" => "êŸ¼",     #  or try á‘«
-    "Q" => "á»Œ",
-    "R" => "Ð¯",
-    "S" => "Æ§",
-    "T" => "T",
-    "U" => "U",
-    "V" => "V",
-    "W" => "W",
-    "X" => "X",
-    "Y" => "Y",
-    "Z" => "Æ¸",       # need a good Z
-    "a" => "É’",
-    "b" => "d",
-    "c" => "É”",
-    "d" => "b",
-    "e" => "É˜",
-    "f" => "Ê‡",
-    "g" => "Ç«",
-    "h" => "Êœ",
-    "i" => "i",
-    "j" => "á‚±",
-    "k" => "Êž",
-    "l" => "l",
-    "m" => "m",
-    "n" => "n",
-    "o" => "o",
-    "p" => "q",
-    "q" => "p",
-    "r" => "É¿",
-    "s" => "Æ¨",
-    "t" => "Æš",
-    "u" => "u",
-    "v" => "v",
-    "w" => "w",
-    "x" => "x",
-    "y" => "y",
-    "z" => "z",
-    "0" => "0",
-    "1" => "1",
-    "2" => "2",
-    "3" => "Æ¸",
-    "4" => "4",
-    "5" => "5",
-    "6" => "6",
-    "7" => "7",
-    "8" => "8",
-    "9" => "9",
-    "!" => "!",
-    "?" => "âš",
-    "," => "â",
-);
-
 my %flip = (
-    "A" => "á—„",
-    "B" => "á—·",
-    "C" => "âŠ‚",
-    "D" => "D",
-    "E" => "E",
-    "F" => "á–¶",
-    "G" => "â…",
-    "H" => "H",
-    "I" => "I",
-    "J" => "á˜ƒ",
-    "K" => "Êž",
-    "L" => "â…‚",
-    "M" => "Ê",
-    "N" => "N",
-    "O" => "O",
-    "P" => "b",
-    "Q" => "âµš",
-    "R" => "á–‰",
-    "S" => "á´¤",
-    "T" => "âŠ¥",
-    "U" => "âˆ©",
-    "V" => "â‹€",
-    "W" => "M",
-    "X" => "X",
-    "Y" => "â…„",
-    "Z" => "Z",          # need better
-    "a" => "É",
-    "b" => "p",
-    "c" => "â…½",
-    "d" => "q",
-    "e" => "Ó©",
-    "f" => "Êˆ",
-    "g" => "É“",
-    "h" => "Âµ",
-    "i" => "!",
-    "j" => "É¾",
-    "k" => "Êž",
-    "l" => "êž",
-    "m" => "w",
+    "a" => "\x{0250}",
+    "b" => "q",
+    "c" => "\x{0254}",
+    "d" => "p",
+    "e" => "\x{01DD}",
+    "f" => "\x{025F}",
+    "g" => "\x{0183}",
+    "h" => "\x{0265}",
+    "i" => "\x{0131}",
+    "j" => "\x{027E}",
+    "k" => "\x{029E}",
+    "l" => "\x{0283}",
+    "m" => "\x{026F}",
     "n" => "u",
     "o" => "o",
-    "p" => "b",
-    "q" => "d",
-    "r" => "Ê",
-    "s" => "Æ¨",
-    "t" => "Ê‡",
-    "u" => "âˆ©",
-    "v" => "Ù¨",
-    "w" => "Ê",
+    "p" => "d",
+    "q" => "q",
+    "r" => "\x{0279}",
+    "s" => "s",
+    "t" => "\x{0287}",
+    "u" => "n",
+    "v" => "\x{028C}",
+    "w" => "\x{028D}",
     "x" => "x",
-    "y" => "ÊŽ",
+    "y" => "\x{028E}",
     "z" => "z",
     "0" => "0",
     "1" => "1",
@@ -198,76 +142,8 @@ my %flip = (
     "7" => "7",
     "8" => "8",
     "9" => "9",
-    "!" => "Â¡",
-    "?" => "Â¿",
-    "," => "â",
-);
-
-my %tiny = (
-    "A" => "á´¬",
-    "B" => "á´®",
-    "C" => "á¶œ",
-    "D" => "á´°",
-    "E" => "á´±",
-    "F" => "á¶ ",      # needs a proper capital
-    "G" => "á´³",
-    "H" => "á´´",
-    "I" => "á´µ",
-    "J" => "á´¶",
-    "K" => "á´·",
-    "L" => "á´¸",
-    "M" => "á´¹",
-    "N" => "á´º",
-    "O" => "á´¼",
-    "P" => "á´¾",
-    "Q" => "á‘«",    # needs a better char
-    "R" => "á´¿",
-    "S" => "Ë¢",
-    "T" => "áµ€",
-    "U" => "áµ",
-    "V" => "â±½",
-    "W" => "áµ‚",
-    "X" => "Ë£",
-    "Y" => "Ê¸",
-    "Z" => "á¶»",
-    "a" => "áµƒ",
-    "b" => "áµ‡",
-    "c" => "á¶œ",
-    "d" => "áµˆ",
-    "e" => "áµ‰",
-    "f" => "á¶ ",
-    "g" => "áµ",
-    "h" => "Ê°",
-    "i" => "á¶¦",     # this one â± is a problem
-    "j" => "Ê²",
-    "k" => "áµ",
-    "l" => "á¶«",
-    "m" => "áµ",
-    "n" => "á¶°",     # because â¿ looks bad
-    "o" => "áµ’",
-    "p" => "áµ–",
-    "q" => "á‘«",    # needs a better char
-    "r" => "Ê³",
-    "s" => "Ë¢",
-    "t" => "áµ—",
-    "u" => "áµ˜",
-    "v" => "áµ›",
-    "w" => "Ê·",
-    "x" => "Ë£",
-    "y" => "Ê¸",
-    "z" => "á¶»",
-    "0" => "â°",
-    "1" => "Â¹",
-    "2" => "Â²",
-    "3" => "Â³",
-    "4" => "â´",
-    "5" => "âµ",
-    "6" => "â¶",
-    "7" => "â·",
-    "8" => "â¸",
-    "9" => "â¹",
-    "?" => "ï¹–",
-    "!" => "ï¹—",
+    "?" => "\x{00BF}",
+    "!" => "\x{00A1}",
     "," => ",",
 );
 
@@ -366,32 +242,32 @@ my %italic = (
     "X" => "\x{1D44B}",
     "Y" => "\x{1D44C}",
     "Z" => "\x{1D44D}",
-    "a" => "\x{1D44E}",
-    "b" => "\x{1D44F}",
-    "c" => "\x{1D450}",
-    "d" => "\x{1D451}",
-    "e" => "\x{1D452}",
-    "f" => "\x{1D453}",
-    "g" => "\x{1D454}",
-    "h" => "\x{1D455}",
-    "i" => "\x{1D456}",
-    "j" => "\x{1D457}",
-    "k" => "\x{1D458}",
-    "l" => "\x{1D459}",
-    "m" => "\x{1D45A}",
-    "n" => "\x{1D45B}",
-    "o" => "\x{1D45C}",
-    "p" => "\x{1D45D}",
-    "q" => "\x{1D45E}",
-    "r" => "\x{1D45F}",
-    "s" => "\x{1D460}",
-    "t" => "\x{1D461}",
-    "u" => "\x{1D462}",
-    "v" => "\x{1D463}",
-    "w" => "\x{1D464}",
-    "x" => "\x{1D465}",
-    "y" => "\x{1D466}",
-    "z" => "\x{1D467}",
+    "a" => "\x{1D622}",
+    "b" => "\x{1D623}",
+    "c" => "\x{1D624}",
+    "d" => "\x{1D625}",
+    "e" => "\x{1D626}",
+    "f" => "\x{1D627}",
+    "g" => "\x{1D628}",
+    "h" => "\x{1d629}",
+    "i" => "\x{1D62a}",
+    "j" => "\x{1D62b}",
+    "k" => "\x{1D62c}",
+    "l" => "\x{1D62d}",
+    "m" => "\x{1D62e}",
+    "n" => "\x{1D62f}",
+    "o" => "\x{1D630}",
+    "p" => "\x{1D631}",
+    "q" => "\x{1D632}",
+    "r" => "\x{1D633}",
+    "s" => "\x{1D634}",
+    "t" => "\x{1D635}",
+    "u" => "\x{1D636}",
+    "v" => "\x{1D637}",
+    "w" => "\x{1D638}",
+    "x" => "\x{1D639}",
+    "y" => "\x{1D63a}",
+    "z" => "\x{1D63b}",
     "0" => "0",
     "1" => "1",
     "2" => "2",
@@ -407,33 +283,214 @@ my %italic = (
     "," => ",",
 );
 
+# mathematical bold script capital and small
+# http://www.fileformat.info/info/unicode/category/Lu/list.htm
+# http://www.fileformat.info/info/unicode/category/Ll/list.htm
+
+my %script = (
+    "A" => "\x{1d4d0}",
+    "B" => "\x{1d4d1}",
+    "C" => "\x{1d4d2}",
+    "D" => "\x{1d4d3}",
+    "E" => "\x{1d4d4}",
+    "F" => "\x{1d4d5}",
+    "G" => "\x{1d4d6}",
+    "H" => "\x{1d4d7}",
+    "I" => "\x{1d4d8}",
+    "J" => "\x{1d4d9}",
+    "K" => "\x{1d4da}",
+    "L" => "\x{1d4db}",
+    "M" => "\x{1d4dc}",
+    "N" => "\x{1d4dd}",
+    "O" => "\x{1d4de}",
+    "P" => "\x{1d4df}",
+    "Q" => "\x{1d4e0}",
+    "R" => "\x{1d4e1}",
+    "S" => "\x{1d4e2}",
+    "T" => "\x{1D4e3}",
+    "U" => "\x{1D4e4}",    ## special
+    "V" => "\x{1D4e5}",
+    "W" => "\x{1D4e6}",
+    "X" => "\x{1D4e7}",
+    "Y" => "\x{1D4e8}",
+    "Z" => "\x{1D4e9}",
+    "a" => "\x{1D4ea}",
+    "b" => "\x{1D4eb}",
+    "c" => "\x{1D4ec}",
+    "d" => "\x{1D4ed}",
+    "e" => "\x{1D4ee}",
+    "f" => "\x{1D4ef}",
+    "g" => "\x{1D4f0}",
+    "h" => "\x{1d4f1}",
+    "i" => "\x{1D4f2}",
+    "j" => "\x{1D4f3}",
+    "k" => "\x{1D4f4}",
+    "l" => "\x{1D4f5}",
+    "m" => "\x{1D4f6}",
+    "n" => "\x{1D4f7}",
+    "o" => "\x{1D4f8}",
+    "p" => "\x{1D4f9}",
+    "q" => "\x{1D4fa}",
+    "r" => "\x{1D4fb}",
+    "s" => "\x{1D4fc}",
+    "t" => "\x{1D4fd}",
+    "u" => "\x{1D4fe}",
+    "v" => "\x{1D4ff}",
+    "w" => "\x{1D500}",
+    "x" => "\x{1D501}",
+    "y" => "\x{1D502}",
+    "z" => "\x{1D503}",
+    "0" => "0",
+    "1" => "1",
+    "2" => "2",
+    "3" => "3",
+    "4" => "4",
+    "5" => "5",
+    "6" => "6",
+    "7" => "7",
+    "8" => "8",
+    "9" => "9",
+    "?" => "?",
+    "!" => "!",
+    "," => ",",
+);
+
+my %bubbles = (
+    "A" => "\x{24B6}",
+    "B" => "\x{24B7}",
+    "C" => "\x{24B8}",
+    "D" => "\x{24B9}",
+    "E" => "\x{24BA}",
+    "F" => "\x{24BB}",
+    "G" => "\x{24BC}",
+    "H" => "\x{24BD}",
+    "I" => "\x{24BE}",
+    "J" => "\x{24BF}",
+    "K" => "\x{24C0}",
+    "L" => "\x{24C1}",
+    "M" => "\x{24C2}",
+    "N" => "\x{24C3}",
+    "O" => "\x{24C4}",
+    "P" => "\x{24C5}",
+    "Q" => "\x{24C6}",
+    "R" => "\x{24C7}",
+    "S" => "\x{24C8}",
+    "T" => "\x{24C9}",
+    "U" => "\x{24CA}",
+    "V" => "\x{24CB}",
+    "W" => "\x{24CC}",
+    "X" => "\x{24CD}",
+    "Y" => "\x{24CE}",
+    "Z" => "\x{24CF}",
+    "a" => "\x{24D0}",
+    "b" => "\x{24D1}",
+    "c" => "\x{24D2}",
+    "d" => "\x{24D3}",
+    "e" => "\x{24D4}",
+    "f" => "\x{24D5}",
+    "g" => "\x{24D6}",
+    "h" => "\x{24D7}",
+    "i" => "\x{24D8}",
+    "j" => "\x{24D9}",
+    "k" => "\x{24DA}",
+    "l" => "\x{24DB}",
+    "m" => "\x{24DC}",
+    "n" => "\x{24DD}",
+    "o" => "\x{24DE}",
+    "p" => "\x{24DF}",
+    "q" => "\x{24E0}",
+    "r" => "\x{24E1}",
+    "s" => "\x{24E2}",
+    "t" => "\x{24E3}",
+    "u" => "\x{24E4}",
+    "v" => "\x{24E5}",
+    "w" => "\x{24E6}",
+    "x" => "\x{24E7}",
+    "y" => "\x{24E8}",
+    "z" => "\x{24E9}",
+    "0" => "\x{24EA}",
+    "1" => "\x{2460}",
+    "2" => "\x{2461}",
+    "3" => "\x{2462}",
+    "4" => "\x{2463}",
+    "5" => "\x{2464}",
+    "6" => "\x{2465}",
+    "7" => "\x{2466}",
+    "8" => "\x{2467}",
+    "9" => "\x{2468}",
+    "?" => "?",
+    "!" => "!",
+    "," => ",",
+);
+
+# http://www.fileformat.info/info/unicode/category/So/list.htm
+my %smilies = (
+    '<3'           => "\x{2665}",     #heart
+    ':heart:'      => "\x{2665}",     #heart
+    ':)'           => "\x{1f600}",    #smile
+    ':D'           => "\x{1f625}",    #grin
+    '8-)'          => "\x{1f60e}",    #cool
+    ':P'           => "\x{1f61b}",    #pull tounge
+    ":'("          => "\x{1f62c}",    #cry
+    ':('           => "\x{2639}",     #sad
+    ";)"           => "\x{1f609}",    #wink
+    ":sleep:"      => "\x{1f634}",    #sleep
+    ":halo:"       => "\x{1f607}",    #halo
+    ":devil:"      => "\x{1f608}",    #devil
+    ":horns:"      => "\x{1f608}",    #devil
+    "(c)"          => "\x{00a9}",     # copyright
+    "(r)"          => "\x{00ae}",     # registered
+    "(tm)"         => "\x{0099}",     # trademark
+    ":email:"      => "\x{2709}",     # email
+    ":yes:"        => "\x{2713}",     # tick
+    ":no:"         => "\x{2715}",     # cross
+    ":beer:"       => "\x{1F37A}",    # beer
+    ":wine:"       => "\x{1f377}",    # wine
+    ":wine_glass:" => "\x{1f377}",    # wine
+    ":cake:"       => "\x{1f382}",    # cake
+    ":star:"       => "\x{2606}",     # star
+    ":ok:"         => "\x{1f44d}",    # ok = thumbsup
+    ":yes:"        => "\x{1f44d}",    # yes = thumbsup
+    ":thumbsup:"   => "\x{1f44d}",    # thumbsdown
+    ":thumbsdown:" => "\x{1f44e}",    # thumbsup
+    ":bad:"        => "\x{1f44e}",    # bad = thumbsdown
+    ":no:"         => "\x{1f44e}",    # no = thumbsdown
+    ":ghost:"      => "\x{1f47b}",    # ghost
+    ":skull:"      => "\x{1f480}",    # skull
+    ":time:"       => "\x{231a}",     # time, watch face
+    ":hourglass:"  => "\x{231b}",     # hourglass
+);
+
 my %code_map = (
-    # m => \%mirror,
-    # f => \%flip,
-    # t => \%tiny,
+    f => \%flip,
     b => \%bold,
     i => \%italic,
-) ;
+    o => \%bubbles,
+    s => \%script,
+);
 
 # ----------------------------------------------------------------------------
 sub _transform {
-    my ($code, $string) = @_ ;
-    my $transform = 1 ;
+    my ( $code, $string ) = @_;
+    my $transform = 1;
 
-    if( $code eq 'm') {
-        # mirror needs to be reversed
-        $string = reverse $string ;
-    } elsif( $code eq 'l') {
+    if ( $code eq 'f' ) {
+
+        # needs to be reversed and in lower case for flip
+        $string = reverse lc($string);
+    }
+    elsif ( $code eq 'l' ) {
+
         # leet
-        $string = leet( $string) ;
-        $transform = 0 ;
+        $string    = leet($string);
+        $transform = 0;
     }
 
-    if( $transform && $code_map{ $code}) {
-        $string =~ s/([A-ZA-z0-9?!,])/$code_map{$code}->{$1}/gsm ;
+    if ( $transform && $code_map{$code} ) {
+        $string =~ s/([A-ZA-z0-9?!,])/$code_map{$code}->{$1}/gsm;
     }
 
-    return $string ;
+    return $string;
 }
 
 # ----------------------------------------------------------------------------
@@ -441,16 +498,20 @@ sub _transform {
 # transform A-ZA-z0-9!?, into UTF8 forms suitable for websites that do not allow
 # HTML codes for these
 # we use the following psuedo HTML elements
-# mirrored <m>text</m>
 # flip     <f>text</f>
-# tiny     <t>text</t>
 # bold     <b>text</b>
 # italic   <i>text</i>
+# bubbles  <o>text</o>
 
 sub utf_transform {
     my ($in) = @_;
 
+    # transform for formatting
     $in =~ s|<(\w)>(.*?)</\1>|_transform( $1, $2)|egsi;
+
+    # do the smiley transformations
+    my $smiles = join( '|', map { quotemeta($_) } keys %smilies );
+    $in =~ s/(?<!\w)($smiles)(?!\w)/$smilies{$1}/g;
 
     return $in;
 }

@@ -17,10 +17,11 @@ requires:
   Acme::LeetSpeak: 0
   App::Basis: 0
   Exporter: 0
+  Text::Emoticon: 0
   perl: v5.14.0
   strict: 0
   vars: 0
   warnings: 0
 resources:
   repository: git://github.com/27escape/App-Basis-ConvertText2-UtfTransform.git
-version: 0.1.1
+version: 0.2.0
