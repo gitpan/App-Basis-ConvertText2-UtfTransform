@@ -4,7 +4,6 @@ author:
   - 'Kevin Mulholland <moodfarm@cpan.org>'
 build_requires:
   Test::More: 0
-  perl: 5.014
 configure_requires:
   ExtUtils::MakeMaker: 6.30
 dynamic_config: 0
@@ -19,10 +18,10 @@ requires:
   App::Basis: 0
   Exporter: 0
   Text::Emoticon: 0
-  perl: 5.014
+  perl: v5.14.0
   strict: 0
   vars: 0
   warnings: 0
 resources:
   repository: git://github.com/27escape/App-Basis-ConvertText2-UtfTransform.git
-version: 0.3.0
+version: 0.4.0

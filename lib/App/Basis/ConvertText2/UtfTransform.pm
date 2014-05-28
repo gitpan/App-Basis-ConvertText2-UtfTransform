@@ -56,7 +56,7 @@ L<http://txtn.us/>
 =cut
 
 package App::Basis::ConvertText2::UtfTransform;
-$App::Basis::ConvertText2::UtfTransform::VERSION = '0.3.0';
+$App::Basis::ConvertText2::UtfTransform::VERSION = '0.4.0';
 use 5.014;
 use warnings;
 use strict;
