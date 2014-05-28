@@ -12,23 +12,23 @@ App::Basis::ConvertText2::UtfTransform
     use App::Basis::ConvertText2::UtfTransform
 
     my $string = "<b>bold text</b> 
-    <i>italic text</i>
-    <f>flipped upside down text and reversed</f>
-    <l>Some Leet speak</l>
-    <o>text in bubbles</o>
-    <s>script text</s>
-    :beer:
-    :)
-    ;)
-
-    " ;
+        <i>italic text</i>
+        <f>flipped upside down text and reversed</f>
+        <l>Some Leet speak</l>
+        <o>text in bubbles</o>
+        <s>script text</s>
+        <l>are you leet</l>" ;
 
     say utf_transform( $string) ;
+
+    my $smile = ":beer: is food!  :) I <3 :cake: ;)" ;
+
+    say uttf_smilies( $smile ) ;
 
 =head1 DESCRIPTION
 
 A number of popular websites (eg twitter) do not allow the use of HTML to create
-bold/italic font effects.
+bold/italic font effects or perform smily transformations
 
 However we can simulate this with some clever transformations of plain ascii text
 into UTF8 codes which are a different font and so effectively create the same effect.
@@ -38,49 +38,25 @@ bold, italic, bubbles and leet.
 
 We can transform A-Z a-z 0-9 and ? ! ,
 
-=head1 Smilies
-
 I have only implemented a small set of smilies, ones that I am likely to use
 
-    <3            heart
-    :heart:       heart
-    :)            smile
-    :D            grin
-    8-)           cool
-    :P            pull tongue
-    :(            cry
-    :(            sad
-    ;)            wink
-    :halo:        halo
-    :devil:       devil horns
-    :horns:       devil horns
-    (c)           copyright
-    (r)           registered
-    (tm)          trademark
-    :email:       email
-    :yes:         tick
-    :no:          cross
-    :beer:        beer
-    :wine:        wine
-    :wine_glass:  wine
-    :cake:        cake
-    :star:        star
-    :ok:, :yes:, :thumbsup:    thumbsup
-    :bad:, :no:, :thumbsdown:  thumbsup
-    :ghost:       ghost
-    :skull:       skull
-    :hourglass:   hourglass
-    :time:        watch face
-    :sleep:
+=head1 Note
 
+You cannot embed one format within another, so you cannot have bold script, or 
+bold italic.
 
+=head1 See Also 
 
-See Also L<http://txtn.us/>
+L<http://txtn.us/>
+
+=head1 Functions
+
+=over 4
 
 =cut
 
 package App::Basis::ConvertText2::UtfTransform;
-$App::Basis::ConvertText2::UtfTransform::VERSION = '0.2.0';
+$App::Basis::ConvertText2::UtfTransform::VERSION = '0.3.0';
 use 5.014;
 use warnings;
 use strict;
@@ -95,6 +71,7 @@ use vars qw( @EXPORT @ISA);
 # namespace
 @EXPORT = qw(
     utf_transform
+    utf_smilies
 );
 
 # ----------------------------------------------------------------------------
@@ -461,6 +438,8 @@ my %smilies = (
     ":hourglass:"  => "\x{231b}",     # hourglass
 );
 
+my $smiles = join( '|', map { quotemeta($_) } keys %smilies );
+
 my %code_map = (
     f => \%flip,
     b => \%bold,
@@ -470,6 +449,7 @@ my %code_map = (
 );
 
 # ----------------------------------------------------------------------------
+# regexp replace function
 sub _transform {
     my ( $code, $string ) = @_;
     my $transform = 1;
@@ -495,13 +475,29 @@ sub _transform {
 
 # ----------------------------------------------------------------------------
 
-# transform A-ZA-z0-9!?, into UTF8 forms suitable for websites that do not allow
-# HTML codes for these
-# we use the following psuedo HTML elements
-# flip     <f>text</f>
-# bold     <b>text</b>
-# italic   <i>text</i>
-# bubbles  <o>text</o>
+=item utf_transform
+
+transform A-ZA-z0-9!?, into UTF8 forms suitable for websites that do not allow
+HTML codes for these
+
+we use the following psuedo HTML elements
+
+    flip     <f>text</f>      upside down and reversed
+    bold     <b>text</b>
+    italic   <i>text</i>
+    bubbles  <o>text</o>
+    script   <s>text</s>
+    leet     <l>text</l>      LeetSpeak
+
+B<Parameters>  
+
+incoming string    
+
+B<Returns>
+
+transformed string
+
+=cut
 
 sub utf_transform {
     my ($in) = @_;
@@ -509,12 +505,70 @@ sub utf_transform {
     # transform for formatting
     $in =~ s|<(\w)>(.*?)</\1>|_transform( $1, $2)|egsi;
 
-    # do the smiley transformations
-    my $smiles = join( '|', map { quotemeta($_) } keys %smilies );
+    return $in;
+}
+
+# ----------------------------------------------------------------------------
+
+=item utf_smilies
+
+transform some character strings into UTF smilies
+
+I have only implemented a small set of smilies, ones that I am likely to use
+
+    | smilie                    | symbol      |
+    |---------------------------+-------------|
+    | <3. :heart:               | heart       |
+    | :)                        | smile       |
+    | :D                        | grin        |
+    | 8-)                       | cool        |
+    | :P                        | pull tongue |
+    | :(                        | cry         |
+    | :(                        | sad         |
+    | ;)                        | wink        |
+    | :halo:                    | halo        |
+    | :devil:, :horns:          | devil horns |
+    | (c)                       | copyright   |
+    | (r)                       | registered  |
+    | (tm)                      | trademark   |
+    | :email:                   | email       |
+    | :yes:                     | tick        |
+    | :no:                      | cross       |
+    | :beer:                    | beer        |
+    | :wine:, :wine_glass:      | wine        |
+    | :cake:                    | cake        |
+    | :star:                    | star        |
+    | :ok:, :thumbsup:          | thumbsup    |
+    | :bad:, :thumbsdown:       | thumbsup    |
+    | :ghost:                   | ghost       |
+    | :skull:                   | skull       |
+    | :hourglass:               | hourglass   |
+    | :time:                    | watch face  |
+    | :sleep:                   | sleep       |
+
+B<Parameters>  
+
+incoming string    
+
+B<Returns>
+
+transformed string
+
+=cut
+
+sub utf_smilies {
+    my ($in) = @_;
+
     $in =~ s/(?<!\w)($smiles)(?!\w)/$smilies{$1}/g;
 
     return $in;
 }
+
+# ----------------------------------------------------------------------------
+
+=back
+
+=cut
 
 # ----------------------------------------------------------------------------
 1;

@@ -1,6 +1,6 @@
 #!/usr/bin/env perl
 # PODNAME: utftx - Convert ascii text into UTF8 to simulate text formatting
-# ABSTRACT: Convert ascii text into UTF8 to simulate text formatting
+# ABSTRACT: Convert ascii text into UTF8 to simulate text formatting. Perform smilies transformations
 
 =head1 NAME
 
@@ -16,6 +16,8 @@ utftx
 =head1 DESCRIPTION
 
 Convert ascii text into UTF8 to simulate text formatting
+
+Note: You cannot embed one format within another, so you cannot have bold script, or bold italic.
 
 =cut
 
@@ -41,4 +43,4 @@ my %opt = init_app(
 
 # make sure we are processing utf properly for output
 binmode(STDOUT, ":utf8");
-say utf_transform( join( " ", @ARGV ) );
+say utf_smilies( utf_transform( join( " ", @ARGV ) )) ;
